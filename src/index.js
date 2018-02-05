@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import {Observable} from "rxjs";
 import {withState} from "./state";
-const ReactDOM = require('react-dom');
+import {pipe} from "ramda";
+import ReactDOM from "react-dom";
 
 class Spinner extends Component {
     render() {
@@ -91,11 +92,46 @@ class Spinners extends Component {
     }
 }
 
+const getValue = e => e.target.value;
+
+class Form extends Component {
+    constructor(...args) {
+        super(...args);
+        this.state = {
+            value: {
+                firstname: '',
+                lastname: ''
+            }
+        };
+    }
+
+    render() {
+        const setFirstname = this.props.store.reducer((state, firstname) => Object.assign({}, state, {firstname}));
+        const setLastname = this.props.store.reducer((state, lastname) => Object.assign({}, state, {lastname}));
+
+        return (
+            <div>
+                <input onChange={pipe(getValue, setFirstname)} value={this.state.value.firstname}/>
+                <input onChange={pipe(getValue, setLastname)} value={this.state.value.lastname}/>
+            </div>
+        );
+    }
+}
+
+const [
+    WrappedForm,
+    form$
+] = withState(Form, {
+    firstname: '',
+    lastname: ''
+});
+
 class App extends Component {
     render() {
         return (
             <div>
-                <Spinners/>
+                <Spinners />
+                <WrappedForm />
             </div>
         );
     }
